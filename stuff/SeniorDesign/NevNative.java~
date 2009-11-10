@@ -1,0 +1,13 @@
+public class NevNative {
+
+public native void display();
+
+static {
+System.loadLibrary("nevnative");
+}
+
+public static void main(String[] args) {
+NevNative object=new NevNative();
+object.display();
+}
+}

@@ -1,0 +1,13 @@
+#include <jni.h>
+#include "NevNative.h"
+#include <stdio.h>
+
+JNIEXPORT void JNICALL Java_NevNative_display(JNIEnv *env, jobject obj)
+{
+printf("Hello world!\n");
+return;
+}
+mai()
+{
+
+}
