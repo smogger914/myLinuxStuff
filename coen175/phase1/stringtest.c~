@@ -1,0 +1,36 @@
+#include <string.h>
+#include <stdio.h>
+
+
+char fromComp[8];
+char holder[4] = "bob\0";
+char comp[4][8] = {"tim","bob","far", "tar"};
+
+void main(){
+
+int i,j;
+for( j = 0; j < 3; j++){
+
+	for(i = 0; i < 3;i++)
+	{
+		fromComp[i] = comp[j][i];
+		printf("F%c\n",fromComp[i]);
+		printf("C%c\n",comp[j][i]);
+
+		printf("the answer is %d\n",strcmp(holder, fromComp));
+	}
+}
+
+
+//printf("the answer is %d\n",strcmp(holder, fromComp));
+
+
+//printf("\n");
+//fromComp[i+1] = '\0';
+//strcmp return 0 if they are identical
+//strlen return str length
+
+//printf("the answer is %d\n",strcmp(holder, fromComp));
+
+
+}
