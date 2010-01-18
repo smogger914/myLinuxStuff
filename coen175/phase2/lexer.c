@@ -1,0 +1,400 @@
+/*
+ * File:	lexer.c
+ *
+ * Description:	This file contains the public and private function and
+ *		variable definitions for the lexical analyzer for Simple C.
+ */
+
+# include <stdio.h>
+# include <ctype.h>
+# include <stdlib.h>
+# include <string.h>
+# include <assert.h>
+# include "lexer.h"
+
+# ifdef DMALLOC
+# define DMALLOC_FUNC_CHECK
+# include <dmalloc.h>
+# endif
+
+
+#define ID 257
+#define CHAR 258
+#define INT 259
+#define VOID 260
+#define NUM 261
+#define RETURN 262
+#define WHILE 263
+#define IF 264
+#define ELSE 265
+#define SIZEOF 266
+#define STRING 267
+#define OR 268
+#define AND 269
+#define LESSTHANEQUAL 270
+#define GREATERTHANEQUAL 271
+
+char *lexbuf = NULL;
+static int bufcnt, buflen, lineno = 1;
+
+struct key 
+{
+     char *keyword;
+     int token;
+};
+
+
+
+/* Later, we will associate token values with each keyword */
+
+static struct key keywords[] = {
+    {"auto",-1},
+    {"break",-1},
+    {"case",-1},
+    {"char",CHAR},
+    {"const",-1},
+    {"continue",-1},
+    {"default",-1},
+    {"do",-1},
+    {"double",-1},
+    {"else",ELSE},
+    {"enum",-1},
+    {"extern",-1},
+    {"float",-1},
+    {"for",-1},
+    {"goto",-1},
+    {"if",IF},
+    {"int",INT},
+    {"long",-1},
+    {"register",-1},
+    {"return",RETURN},
+    {"short",-1},
+    {"signed",-1},
+    {"sizeof",SIZEOF},
+    {"static",-1},
+    {"struct",-1},
+    {"switch",-1},
+    {"typedef",-1},
+    {"union",-1},
+    {"unsigned",-1},
+    {"void",-1},
+    {"volatile",-1},
+    {"while",WHILE},
+    {NULL,-1}
+};
+
+
+/*
+ * Function:	addToBuffer
+ *
+ * Description:	Add the specified character to the end of the buffer.
+ */
+
+static void addToBuffer(int c)
+{
+    if (bufcnt == buflen) {
+	buflen = buflen * 2;
+	lexbuf = realloc(lexbuf, buflen);
+	assert(lexbuf != NULL);
+    }
+
+    lexbuf[bufcnt ++] = c;
+}
+
+
+/*
+ * Function:	report
+ *
+ * Description:	Report an error to the standard error prefixed with the
+ *		current line number.
+ */
+
+void report(char *format, char *string)
+{
+    fprintf(stderr, "line %d: ", lineno);
+    fprintf(stderr, format, string);
+    fprintf(stderr, "\n");
+}
+
+
+/*
+ * Function:	lexan
+ *
+ * Description:	Read and tokenize the standard input stream.  The lexeme is
+ *		stored in a buffer for later processing.
+ */
+
+int lexan(void)
+{
+    int i;
+    static int c = EOF;
+
+
+    /* Initialize the buffer */
+
+    if (c == EOF) {
+	c = getchar();
+	buflen = BUFSIZ;
+	lexbuf = malloc(buflen);
+	assert(lexbuf != NULL);
+    }
+
+
+    /* The invariant here is that the next character has already been read
+       and is ready to be classified.  If you want to buffer it as well,
+       you need to do that too. */
+
+    while (c != EOF) {
+	bufcnt = 0;
+
+
+	/* Ignore white space */
+
+	while (isspace(c)) {
+	    if (c == '\n')
+		lineno ++;
+
+	    c = getchar();
+	}
+
+
+	/* Check for an identifier or a keyword */
+
+	if (isalpha(c) || c == '_') {
+	    do {
+		addToBuffer(c);
+		c = getchar();
+	    } while (isalnum(c) || c == '_');
+
+	    addToBuffer('\0');
+
+	    for (i = 0; keywords[i].keyword != NULL; i ++)
+		if (strcmp(keywords[i].keyword, lexbuf) == 0)
+		    break;
+
+	   if (keywords[i].keyword != NULL){
+			return(keywords[i].token);
+			break;
+			//printf("keyword:%s\n", lexbuf);
+		}
+	   else{
+			return(keywords[i].token);
+			break;
+			//printf("identifier:%s\n", lexbuf);
+		}
+
+
+	/* Check for a number */
+
+	} else if (isdigit(c)) {
+	    do {
+		addToBuffer(c);
+		c = getchar();
+	    } while (isdigit(c));
+
+	    addToBuffer('\0');
+	    //printf("number:%s\n", lexbuf);
+		 return(NUM);
+
+	/* Is there a better way to do this? */
+
+	} else {
+	    addToBuffer(c);
+
+	    switch (c) {
+
+
+	    /* Check for '||' */
+
+	    case '|':
+		c = getchar();
+
+		if (c == '|') {
+		    addToBuffer(c);
+		    addToBuffer('\0');
+		    c = getchar();
+			 return
+	//	    puts("operator:||");
+		}
+
+		break;
+
+
+	    /* Check for '=' and '==' */
+
+	    case '=':
+		c = getchar();
+
+		if (c == '=') {
+		    addToBuffer(c);
+		    addToBuffer('\0');
+		    c = getchar();
+		    puts("operator:==");
+		} else {
+		    addToBuffer('\0');
+		    puts("operator:=");
+		}
+
+		break;
+
+
+	    /* Check for '&' and '&&' */
+
+	    case '&':
+		c = getchar();
+
+		if (c == '&') {
+		    addToBuffer(c);
+		    addToBuffer('\0');
+		    c = getchar();
+		    puts("operator:&&");
+		} else {
+		    addToBuffer('\0');
+		    puts("operator:&");
+		}
+
+		break;
+
+
+	    /* Check for '!' and '!=' */
+
+	    case '!':
+		c = getchar();
+
+		if (c == '=') {
+		    addToBuffer(c);
+		    addToBuffer('\0');
+		    c = getchar();
+		    puts("operator:!=");
+		} else {
+		    addToBuffer('\0');
+		    puts("operator:!");
+		}
+
+		break;
+
+
+	    /* Check for '<' and '<=' */
+
+	    case '<':
+		c = getchar();
+
+		if (c == '=') {
+		    addToBuffer(c);
+		    addToBuffer('\0');
+		    c = getchar();
+		    puts("operator:<=");
+		} else {
+		    addToBuffer('\0');
+		    puts("operator:<");
+		}
+
+		break;
+
+
+	    /* Check for '>' and '>=' */
+
+	    case '>':
+		c = getchar();
+
+		if (c == '=') {
+		    addToBuffer(c);
+		    addToBuffer('\0');
+		    c = getchar();
+		    puts("operator:>=");
+		} else {
+		    addToBuffer('\0');
+		    puts("operator:>");
+		}
+
+		break;
+
+
+	    /* Check for simple, single character operators */
+
+	    case '+': case '-': case '*': case '%':
+	    case '(': case ')': case '[': case ']':
+	    case '{': case '}': case ';': case ',':
+		addToBuffer('\0');
+		printf("operator:%c\n", c);
+		c = getchar();
+		break;
+
+
+	    /* Check for '/' or a comment */
+
+	    case '/':
+		c = getchar();
+
+		if (c == '*') {
+		    c = getchar();
+
+		    do {
+			while (c != '*' && c != EOF) {
+			    if (c == '\n')
+				lineno ++;
+			    c = getchar();
+			}
+
+			c = getchar();
+		    } while (c != '/' && c != EOF);
+
+		    c = getchar ( );
+		} else {
+		    addToBuffer('\0');
+		    puts("operator:/");
+		}
+
+		break;
+
+
+	    /* Check for a string */
+
+	    case '"':
+		c = getchar();
+
+		while (c != '"' && c != '\n' && c != EOF) {
+		    addToBuffer(c);
+		    c = getchar();
+		}
+
+		if (c == '\n' || c == EOF)
+		    report("premature end of string literal", "");
+
+		addToBuffer(c);
+		addToBuffer('\0');
+		c = getchar();
+		printf("string:%s\n", lexbuf);
+		break;
+
+
+	    /* Catch EOF here as well */
+
+	    case EOF:
+		break;
+
+
+	    /* Ignore everything else */
+
+	    default:
+		addToBuffer('\0');
+		c = getchar();
+		break;
+	    }
+	}
+    }
+}
+
+
+/*
+ * Function:	main
+ *
+ * Description:	Read and tokenize the standard input stream.
+ */
+
+int main(void)
+{
+	 int x = lexan();
+    free(lexbuf);
+    return 0;
+}
