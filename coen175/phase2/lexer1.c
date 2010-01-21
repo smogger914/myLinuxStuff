@@ -155,18 +155,10 @@ int lexan(void)
 
     for (i = 0; keywords[i].keyword != NULL; i ++)
 		if (strcmp(keywords[i].keyword, lexbuf) == 0)
-		    break;
+			 return keywords[i].token;
+		    //break;
 
-	   if (keywords[i].keyword != NULL){
-			return(keywords[i].token);
-			break;
-			//printf("keyword:%s\n", lexbuf);
-		}
-	   else{
-			return(keywords[i].token);
-			break;
-			//printf("identifier:%s\n", lexbuf);
-		}
+	  return ID;
 
 
 	/* Check for a number */
@@ -202,7 +194,7 @@ int lexan(void)
 	//	    puts("operator:||");
 		}
 
-		break;
+		//break;
 
 
 	    /* Check for '=' and '==' */
@@ -242,7 +234,7 @@ int lexan(void)
 		   // puts("operator:&");
 		}
 
-		break;
+		//break;
 
 
 	    /* Check for '!' and '!=' */
@@ -262,7 +254,7 @@ int lexan(void)
 //		    puts("operator:!");
 		}
 
-		break;
+	//	break;
 
 
 	    /* Check for '<' and '<=' */
@@ -282,7 +274,7 @@ int lexan(void)
 		    //puts("operator:<");
 		}
 
-		break;
+		//break;
 
 
 	    /* Check for '>' and '>=' */
@@ -302,7 +294,7 @@ int lexan(void)
 		  //  puts("operator:>");
 		}
 
-		break;
+		//break;
 
 
 	    /* Check for simple, single character operators */
@@ -317,7 +309,7 @@ int lexan(void)
 		return(temp);
 		//printf("operator:%c\n", c);
 		
-		break;
+		//break;
 
 
 	    /* Check for '/' or a comment */
@@ -344,8 +336,8 @@ int lexan(void)
 			 return('/');
 		   // puts("operator:/");
 		}
-
-		break;
+		return(0);
+		//break;
 
 
 	    /* Check for a string */
@@ -366,14 +358,14 @@ int lexan(void)
 		c = getchar();
 	   return(STRING);	
 //		printf("string:%s\n", lexbuf);
-		break;
+	//	break;
 
 
 	    /* Catch EOF here as well */
 
 	    case EOF:
 		return(FILEND);
-		break;
+		//break;
 
 
 	    /* Ignore everything else */
@@ -381,10 +373,12 @@ int lexan(void)
 	    default:
 		addToBuffer('\0');
 		c = getchar();
-		break;
+		return 0;
+		//break;
 	    }
-	}
+		}
     }
+	return 0;
 }
 
 
