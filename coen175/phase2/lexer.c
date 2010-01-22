@@ -62,7 +62,7 @@ static struct key keywords[] = {
     {"typedef",-1},
     {"union",-1},
     {"unsigned",-1},
-    {"void",-1},
+    {"void",VOID},
     {"volatile",-1},
     {"while",WHILE},
     {NULL,-1}
@@ -122,7 +122,7 @@ int lexan(void)
 	buflen = BUFSIZ;
 	lexbuf = malloc(buflen);
 	assert(lexbuf != NULL);
-}
+	}
 
 
     /* The invariant here is that the next character has already been read
@@ -159,12 +159,12 @@ int lexan(void)
 
 	   if (keywords[i].keyword != NULL){
 			return(keywords[i].token);
-			break;
+//			break;
 			//printf("keyword:%s\n", lexbuf);
 		}
 	   else{
-			return(keywords[i].token);
-			break;
+			return(ID);
+	//		break;
 			//printf("identifier:%s\n", lexbuf);
 		}
 
@@ -385,6 +385,7 @@ int lexan(void)
 	    }
 	}
     }
+	return 0;
 }
 
 

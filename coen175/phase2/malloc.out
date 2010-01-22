@@ -1,0 +1,10 @@
+push n
+push 10
+asgn
+push p
+szof
+push n
+mul
+call malloc
+cast
+asgn

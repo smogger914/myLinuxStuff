@@ -1,0 +1,32 @@
+push i
+push 0
+asgn
+push sum
+push 0
+asgn
+push n
+push 10
+asgn
+push i
+push n
+leq
+push sum
+push sum
+push i
+add
+asgn
+push i
+push i
+push 1
+add
+asgn
+push "%d %d\n"
+push sum
+push n
+push n
+push 1
+add
+mul
+push 2
+div
+call printf

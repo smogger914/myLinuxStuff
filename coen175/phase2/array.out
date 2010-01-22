@@ -1,0 +1,35 @@
+push p3
+push p2
+addr
+asgn
+push p2
+push p1
+addr
+asgn
+push p1
+push x
+addr
+asgn
+push p3
+push 1
+push 1
+sub
+indx
+push 2
+push 0
+mul
+indx
+push 0
+push 3
+div
+indx
+push b
+push 4
+indx
+push c
+push 5
+push 6
+add
+indx
+mul
+asgn

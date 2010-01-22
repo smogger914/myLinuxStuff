@@ -4,30 +4,30 @@
 # include <string.h>
 # include <assert.h>
 # include "lexer.h"
-//# include "parser.h"
+# include "parser.h"
 
 //vars
 int lookahead;
 
 
 //function defs
-void error();
+void error(void);
 
-void translationunit();
-void globaldeclaration();
-void typespecifier();
-void pointers();
-void parameters();
-void parameterlist();
-void parameter();
-void declarations();
-void declaration();
-void declaratorlist();
-void declarator();
-void statement();
-void statements();
-void expression();
-void expressionlist();
+void translationunit(void);
+void globaldeclaration(void);
+void typespecifier(void);
+void pointers(void);
+void parameters(void);
+void parameterlist(void);
+void parameter(void);
+void declarations(void);
+void declaration(void);
+void declaratorlist(void);
+void declarator(void);
+void statement(void);
+void statements(void);
+void expression(void);
+void expressionlist(void);
 void match(int t);
 
 void E(void);
@@ -40,35 +40,51 @@ void K(void);
 void L(void);
 void M(void);
 void N(void);
+void P(void);
 
 
 //code
-void error(){
-
+void error(void){
+	//report();	
+	//printf("error\n");
 }
-void translationunit(){
+/*void translationunit(void){
 	globaldeclaration();
 	translationunit();
-}
-void globaldeclaration(){
-	if(lookahead == CHAR || lookahead == INT){
+}*/
+void globaldeclaration(void){
+	
 		typespecifier();
 		pointers();
 		match(ID);
-		match('(');
-		parameters();
-		match(')');
-		match('{');
-		declarations();
-		statements();
-		match('}');
-	}
+			if(lookahead == '('){
+				match('(');
+				parameters();
+				match(')');
+				match('{');
+				declarations();
+				statements();
+				match('}');
+			}
+	
+	
 	else{
-		declaration();
+		if(lookahead == '['){
+			match('[');
+			match(NUM);
+			match(']');
+			
+		}
+		if(lookahead == ','){
+			declaratorlist();
+			
+		}
+		match(';');
+
 	}
 	
 }
-void typespecifier() {
+void typespecifier(void) {
 	if(lookahead == CHAR || lookahead == INT){
       match(lookahead);
 	}
@@ -77,7 +93,7 @@ void typespecifier() {
 	}
 
 }
-void pointers() {
+void pointers(void) {
 	if(lookahead == '*')
 	{
       match('*');
@@ -85,26 +101,26 @@ void pointers() {
 	}
 
 }
-void parameters(){
+void parameters(void){
 	if(lookahead == VOID)	
 	match(VOID);
 	else
 	parameterlist();
 }
-void parameterlist(){
+void parameterlist(void){
 	parameter();
 	if(lookahead == ','){	
 		match(',');
 		parameterlist();
 	}
 }
-void parameter(){	
+void parameter(void){	
 	typespecifier();
 	declaratorlist();
 	match(ID);
 	
 }
-void declarations(){
+void declarations(void){
 	
 	if(lookahead == CHAR || lookahead == INT){
       declaration();
@@ -112,29 +128,29 @@ void declarations(){
 	}
 
 }
-void declaration(){
+void declaration(void){
 	typespecifier();
 	declaratorlist();
 	match(';');
 }
-void declaratorlist(){
-		declaration();	   
+void declaratorlist(void){
+		declarator();	   
 		while(lookahead == ','){
 	     match(',');
-        declaration();
+        declarator();
 		}
 }
-void declarator(){
+void declarator(void){
 	pointers();
 	match(ID);
-	if(lookahead = '['){
+	if(lookahead == '['){
 		match('[');
 		match(NUM);
 		match(']');
 	}
 	
 }
-void statement(){
+void statement(void){
 	if(lookahead == '{') {
 		match('{');
 		declarations();
@@ -168,15 +184,15 @@ void statement(){
 		match(';');
 	}
 }
-void statements(){
-	statement();
-	statements();
+void statements(void){
+	while(lookahead != '}')
+		statement();
 }
-void expression(){
+void expression(void){
 	E();
 }
 
-void expressionlist(){
+void expressionlist(void){
 	expression();
    while(lookahead == ','){
 	   match(',');
@@ -189,20 +205,22 @@ void E(void) {
 	if (lookahead =='=') {
 	    match('=');
 	    E();
-	    printf("asgn\n");
-	 } else
-	 	error();
+		 printf("asgn\n");
+	 } 
+	 	
 }
 
 void T(void) {
 	F();
-	
+
     while(1) {
-       if (lookahead == OR) {
+   	if (lookahead == OR) {
 	    match(OR);
 	    F();
-	 } else
-	 	error();
+		 printf("or\n");
+	 } 
+		else
+	 		break;
     }
 }
 
@@ -212,60 +230,80 @@ void F(void) {
     while(1) {
 	if (lookahead == AND) {
 	    match(AND);
-	    H();
-	 } else
-	 	error();
+		 H();
+		 printf("and\n");
+   	} else
+	 	break;
     }
 }
 
 void H(void) {
 	I();
 	
-    while(1) {
-	if (lookahead == EQ) {
+   while(1) {
+		if (lookahead == EQ) {
 	    match(EQ);
+		 
 	    I();
+		 printf("eql\n");
 	 } else if (lookahead == NEQ) {
 	    match(NEQ);
+		 
 	    I();
+		 printf("neq\n");
 	 } else
-	 	error();
+	 	break;
     }
 }
 
 void I(void) {
 	J();
 	
-    while(1) {
-	if (lookahead == '<') {
-	    match('<');
-	    J();
-	 } else if (lookahead == '>') {
-	 	match('>');
-	 	J();
-	 } else if (lookahead == GTE) {
-	 	match(GTE);
-	 	J();
-	 } else if (lookahead == LTE) {
-	 	match(LTE);
-	 	J();
-	 } else
-	 	error();
+   while(1) {
+		if (lookahead == '<') {
+   	   match('<');
+			J();		 
+			printf("ltn\n");
+	    
+		 } else if (lookahead == '>') {
+		 	match('>');
+			J();	 	
+			printf("gtn\n");
+	 	
+		 } else if (lookahead == GTE) {
+		 	match(GTE);
+		   J();
+		   printf("geq\n");
+	 
+		 } else if (lookahead == LTE) {
+		 	match(LTE);
+			J();		
+			printf("leq\n");
+	 	
+		 } else{
+	      	//error();
+				break;
+			}
      }
 }
 
 void J(void) {
 	K();
 	
-    while(1) {
+   while(1) {
 	if (lookahead == '+') {
 	    match('+');
-	    K();
+		 K();
+		 printf("add\n");
+		     
 	 } else if (lookahead == '-') {
 	    match('-');
+		 
 	    K();
+		 printf("sub\n");
 	 } else
-	 	error();
+	 
+		break;
     }
 }
 
@@ -275,83 +313,174 @@ void K(void) {
     while(1) {
 	if (lookahead == '*') {
 	    match('*');
-	    L();
+		 L(); 
+		 printf("mul\n");
+		    
 	 } else if (lookahead == '/') {
 	    match('/');
-	    L();
+		 L();
+		 printf("div\n");
+	    
 	 }  else if (lookahead == '%') {
 	    match('%');
-	    L();
+		 L();
+		 printf("rem\n");
+	    
 	 } else
-	 	error();
+	 	break;
     }
 }
 
 void L(void) {
- 	M();
- 
- while (1) {
-      if (lookahead =='(') {
-	    match('(');
-	    M();
-	    match(')');
-	} else
-	    error();
-     }	
+
+	if(lookahead == '('){
+		match('(');
+
+		if(lookahead == INT || lookahead == CHAR){
+			match(lookahead);
+			pointers();
+			match(')');
+			L();
+			printf("cast\n");
+		}
+		else{
+			expression();
+			match(')');
+		}
+		
+		
+	}
+	
+	else{
+		M();
+	}
+	
+
 
 }
 
 void M(void) {
-	N();
 	
-    while (1) {
+	
+ 
       if (lookahead =='!') {
 	    match('!');
-	    N();
+		 M();
+	    printf("not\n");
+		 
+	    
 	} else if (lookahead == '-') {
 	    match('-');
-	    N();
+		 M();
+		 printf("neg\n");
+		 
+	    
 	} else if (lookahead == '&') {
 	    match('&');
-	    N();
+		 M();
+		 printf("addr\n");
+	    
 	} else if (lookahead == '*') {
 	    match('*');
-	    N();
+		 M();
+		 printf("dref\n");
+	    
 	} else if (lookahead == SZOF) {
 	    match(SZOF);
-	    N();
-	} else
-	    error();
-     }	
+		 match('(');
+		 typespecifier();
+		 pointers();
+		 match(')');
+		 printf("szof\n");
+	  }
+	else {
+		N();
+	} 
+
 	
 }
 
 void N(void) {
-//test
-	lookahead = lexan();
+	P();
+	
+	while(lookahead == '['){
+		match('[');
+		expression();
+		match(']');
+		printf("indx\n");
+	}
+	
+	
+}
+void P(void){
+	
+	if(lookahead == ID){
+		//
+		char *temp;
+		temp = strdup(lexbuf);
+		
+		match(ID);
+			if(lookahead == '('){
+				match('(');
+				
+					if (lookahead == ')'){
+						match(')');
+					}
+					else{
+						expressionlist();
+						match(')');
+					}
+					printf("call %s\n", temp);
+			}
+			else{
+				printf("push %s\n", temp);
+			}
+	}
+	else if(lookahead == NUM){
+		printf("push %s\n", lexbuf);
+		
+		match(NUM);
+//		printf("push %s\n", lexbuf);
+	}
+	else if(lookahead == STRING){
+
+		printf("push %s\n", lexbuf);
+		match(STRING);
+		
+	}
+	else if(lookahead == '('){
+		match('(');
+		expression();
+		match(')');
+	}
+	
 }
 
 void match(int t) {
-	if(lookahead == t)
+	if(lookahead == t) {
+		//printf("old lookahead = %s\n", lexbuf);
 		lookahead = lexan();
-	else
+		//printf("new lookahead = %s  %d\n", lexbuf, lookahead);
+	} else
 		error();
 }
 
 int main(void){
 
-	int lookahead = lexan();
+	lookahead = lexan();
+	//printf("lookahead = %d\n", lookahead);
 	//int x = 0;
-	//printf("hello");
+	
 	while(lookahead != FILEND){
 	//while(x < 10){
-		if(lookahead != -1){
-
-		expression();
-		}
+		//if(lookahead != -1){
+		//printf("%d\n",lookahead);
+		globaldeclaration();
+		//expression();
+		//}
 	//	x++;
 		
-		lookahead = lexan();
+	//	lookahead = lexan();
 	}
 	free (lexbuf);
 	return 0;

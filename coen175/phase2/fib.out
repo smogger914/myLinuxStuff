@@ -1,0 +1,25 @@
+push n
+push 0
+eql
+push n
+push 1
+eql
+or
+push 1
+push n
+push 1
+sub
+call fib
+push n
+push 2
+sub
+call fib
+add
+push "%d"
+push n
+addr
+call scanf
+push "%d\n"
+push n
+call fib
+call printf
